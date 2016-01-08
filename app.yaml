@@ -1,0 +1,26 @@
+application: stockalerts
+version: 1
+runtime: go
+api_version: go1
+env_variables:
+  CACHE_EXPIRY_MINUTES: 120
+handlers:
+- url: /stockalerts
+  script: _go_app
+
+# TODO: there should be an easy to way configure the static files with wildcard. investigate.
+- url: /css
+  static_dir: static/css
+
+- url: /fonts
+  static_dir: static/fonts
+
+- url: /js
+  static_dir: static/js
+
+- url: /img
+  static_dir: static/img
+
+- url: /.*
+  script: _go_app
+
