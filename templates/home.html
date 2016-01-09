@@ -475,7 +475,7 @@
     <script src="js/freelancer.js"></script>
 <script>
     $("#AddToPortfolio").click(function(event) {
-
+        event.preventDefault();
         var payload = {
             "symbol" : $("#symbol").val(),
             "email" : $("#userEmail").val(),
@@ -494,9 +494,13 @@
         }).done(function(data) {
             alert("New Alert Received");
         }).fail(function(data) {
-            alert("Error in registering alert");
+            if ( data.status == 201 ) {
+                alert("New Alert Received");
+            } else {
+                alert("New Alert Receive failed ");
+            }
         });
-        event.preventDefault();
+
     });
 </script>
 

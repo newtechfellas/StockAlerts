@@ -4,7 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/mail"
-	"log"
+	"google.golang.org/appengine/log"
 	"net/http"
 	"time"
 )
@@ -30,7 +30,6 @@ func isWeekDay() bool {
 }
 func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 	if len(cachedStocks) == 0 {
-		log.Println("Cached Stocks not available. Can not continue to update all portfolios")
 		return
 	}
 	if !isWeekDay() {
@@ -41,11 +40,11 @@ func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	var portfolioStocks []PortfolioStock
 	if err := GetAllEntities(ctx, "PortfolioStock", &portfolioStocks); err != nil {
-		log.Println("UpdateAllPortfoliosAndAlert: Could not fetch all portfolios ", err)
+		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: Could not fetch all portfolios ", err)
 		return
 	}
 	if len(portfolioStocks) == 0 {
-		log.Println("UpdateAllPortfoliosAndAlert: fetched portfoilios len is 0")
+		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: fetched portfoilios len is 0")
 		return
 	}
 	eligibleStocks := FilterForAlertEligiblePortfolioStocks(portfolioStocks)
@@ -66,7 +65,7 @@ func FilterForAlertEligiblePortfolioStocks(portfolioStocks []PortfolioStock) []P
 
 func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 	if len(stocksForAlert) == 0 {
-		log.Println("SendAlerts: Alert stocks are empty")
+		log.Debugf(ctx, "SendAlerts: Alert stocks are empty")
 		return
 	}
 	//group by user emails to send a consolidated email
@@ -76,7 +75,7 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 		userPortfolioStocks = append(userPortfolioStocks, alert)
 		groupedStockAlerts[alert.Email] = userPortfolioStocks
 	}
-	log.Println("Will send alerts for ", Jsonify(groupedStockAlerts))
+	log.Debugf(ctx, "Will send alerts for ", Jsonify(groupedStockAlerts))
 	for email, alerts := range groupedStockAlerts {
 		msg := &mail.Message{
 			Sender:  "NewTechFellas Stock Alerts <newtechfellas@gmail.com>",
@@ -85,7 +84,7 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 			Body:    Jsonify(alerts),
 		}
 		if err := mail.Send(ctx, msg); err != nil {
-			log.Println(ctx, "Couldn't send email: %v", err)
+			log.Debugf(ctx, "Couldn't send email: %v", err)
 		}
 	}
 }

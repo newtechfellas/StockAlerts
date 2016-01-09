@@ -7,7 +7,7 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/urlfetch"
 	"io/ioutil"
-	"log"
+	"google.golang.org/appengine/log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -76,7 +76,7 @@ func LoadCurrentPrices(w http.ResponseWriter, r *http.Request) {
 	// Even after loading all stocks, if stocks count is still 0, go home and have a beer
 	// something is seriously wrong
 	if len(cachedStocks) == 0 {
-		log.Println("No stock symbols found in DB. Exiting")
+		log.Debugf(ctx, "No stock symbols found in DB. Exiting")
 		return
 	}
 	symbols := GetMapKeys(cachedStocks)
@@ -97,7 +97,7 @@ func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, e
 
 	query := fmt.Sprintf(`SELECT Symbol,Name,Open,LastTradePriceOnly,ChangeinPercent,DaysLow,DaysHigh,Change FROM %s WHERE symbol IN (%s)`,
 		"yahoo.finance.quotes", strings.Join(quotedSymbols, ","))
-	log.Println("Quotes query = ", query)
+	log.Debugf(ctx, "Quotes query = ", query)
 
 	v := url.Values{}
 	v.Set("q", query)
@@ -106,20 +106,20 @@ func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, e
 	url := PublicApiUrl + "?" + v.Encode()
 	resp, err := client.Get(url)
 	if err != nil {
-		log.Println("Failed to fetch data from YQL for ", url, " error is ", err)
+		log.Debugf(ctx, "Failed to fetch data from YQL for ", url, " error is ", err)
 		return
 	}
 	defer resp.Body.Close()
 	httpBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error in Reading from response body while fetching quote from YQL", err)
+		log.Debugf(ctx, "Error in Reading from response body while fetching quote from YQL", err)
 		return
 	}
-	log.Println("Response from YQL is ", string(httpBody[:]))
+	log.Debugf(ctx, "Response from YQL is ", string(httpBody[:]))
 	if len(symbols) == 1 {
 		var sresp YqlJsonSingleQuoteResponse
 		if err = json.Unmarshal(httpBody, &sresp); err != nil {
-			log.Println("Error in unmarshalling for single response ", err)
+			log.Debugf(ctx, "Error in unmarshalling for single response ", err)
 			return
 		}
 		stocks = append(stocks, sresp.Query.Results.Quote.toStock())
