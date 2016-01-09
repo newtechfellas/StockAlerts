@@ -124,21 +124,21 @@
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>PriceBought</label>
-                                <input class="form-control" type="number" step="0.01" placeholder="Price Bought" value="0" id="priceBrought">
+                                <input class="form-control" type="number" step="0.01" placeholder="Price Bought" id="priceBrought">
                                 <p class="help-block text-danger"></p>
                             </div>
                         </div>
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>PriceLow</label>
-                                <input class="form-control" type="number" step="0.01" placeholder="Price Low" value="0" id="priceLow">
+                                <input class="form-control" type="number" step="0.01" placeholder="Price Low" id="priceLow">
                                 <p class="help-block text-danger"></p>
                             </div>
                         </div>
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>PriceHigh</label>
-                                <input class="form-control" type="number" step="0.01" placeholder="Price High" value="0" id="priceHigh">
+                                <input class="form-control" type="number" step="0.01" placeholder="Price High" id="priceHigh">
                                 <p class="help-block text-danger"></p>
                             </div>
                         </div>
@@ -479,9 +479,9 @@
         var payload = {
             "symbol" : $("#symbol").val(),
             "email" : $("#userEmail").val(),
-            "priceLow" : parseFloat($("#priceLow").val()),
-            "priceHigh" : parseFloat($("#priceHigh").val()),
-            "priceBrought" : parseFloat($("#priceBrought").val())
+            "priceLow" : parseFloat($("#priceLow").val() || 0),
+            "priceHigh" : parseFloat($("#priceHigh").val() || 0),
+            "priceBrought" : parseFloat($("#priceBrought").val() || 0)
         }
         console.log("AddToPortfolio submitted with "+JSON.stringify(payload));
         $.ajax({
