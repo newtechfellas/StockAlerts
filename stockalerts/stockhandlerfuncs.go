@@ -10,14 +10,14 @@ import (
 )
 
 func RemoveAlert(w http.ResponseWriter, r *http.Request) {
-	portfolioStock := PortfolioStock{Symbol:r.URL.Query().Get("symbol"), Email:r.URL.Query().Get("email")}
+	portfolioStock := PortfolioStock{Symbol: r.URL.Query().Get("symbol"), Email: r.URL.Query().Get("email")}
 	ctx := appengine.NewContext(r)
 	log.Println("Removing stock alert ", portfolioStock)
-	if err := DeleteEntity(ctx,portfolioStock.stringId(),0,portfolioStock.kind()); err != nil {
-		ErrorResponse(w,err,http.StatusInternalServerError)
+	if err := DeleteEntity(ctx, portfolioStock.stringId(), 0, portfolioStock.kind()); err != nil {
+		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
-	JsonResponse(w,nil,nil,http.StatusOK)
+	JsonResponse(w, nil, nil, http.StatusOK)
 }
 
 func GetPortfolio(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func GetPortfolio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Update the portfolio alerts
-	if ( len(cachedStocks) == 0 ) {
+	if len(cachedStocks) == 0 {
 		log.Println("Stocks current prices are not available yet. Perhaps the scheduler has not begun or failed")
 		return
 	}
@@ -46,7 +46,7 @@ func GetPortfolio(w http.ResponseWriter, r *http.Request) {
 			portfolioStocks[index] = portfolioStock
 		}
 	}
-	JsonResponse(w,portfolioStocks,nil,http.StatusOK)
+	JsonResponse(w, portfolioStocks, nil, http.StatusOK)
 	return
 }
 
@@ -72,9 +72,9 @@ func RegisterAlert(w http.ResponseWriter, r *http.Request) {
 	}
 	//Is stock symbol valid
 	if _, ok := cachedStocks[portfolioStock.Symbol]; !ok {
-		if stocks , err := GetStocksUsingYql(ctx,[]string{ portfolioStock.Symbol }); err != nil || len(stocks[0].Name) == 0 {
+		if stocks, err := GetStocksUsingYql(ctx, []string{portfolioStock.Symbol}); err != nil || len(stocks[0].Name) == 0 {
 			log.Println("Invalid alert. Stock symbol ", portfolioStock.Symbol, " does not exist")
-			ErrorResponse(w, errors.New("Invalid alert. Stock symbol "+ portfolioStock.Symbol+ " does not exist"), http.StatusBadRequest)
+			ErrorResponse(w, errors.New("Invalid alert. Stock symbol "+portfolioStock.Symbol+" does not exist"), http.StatusBadRequest)
 			return
 		}
 	}

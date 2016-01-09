@@ -17,4 +17,5 @@ func init() {
 	r.HandleFunc("/loadStockPrices", LoadCurrentPrices).Methods("POST")
 	r.HandleFunc("/removeAlert", RemoveAlert).Methods("Delete")
 	r.HandleFunc("/getPortfolio", GetPortfolio).Methods("GET")
+	r.HandleFunc("/updateAllPortfoliosAndAlert", UpdateAllPortfoliosAndAlert).Methods("GET")
 }

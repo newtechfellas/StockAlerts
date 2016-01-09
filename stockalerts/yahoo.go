@@ -10,9 +10,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 const (
@@ -39,31 +39,31 @@ type Quote struct {
 
 type YqlJsonQuoteResponse struct {
 	Query struct {
-			  YqlJsonMeta
-			  Results struct {
-						  Quote []Quote `json:"quote"`
-					  }
-		  }
+		YqlJsonMeta
+		Results struct {
+			Quote []Quote `json:"quote"`
+		}
+	}
 }
 
 type YqlJsonSingleQuoteResponse struct {
 	Query struct {
-			  YqlJsonMeta
-			  Results struct {
-						  Quote Quote `json:"quote"`
-					  }
-		  }
+		YqlJsonMeta
+		Results struct {
+			Quote Quote `json:"quote"`
+		}
+	}
 }
 
-func (q Quote )toStock() Stock {
+func (q Quote) toStock() Stock {
 	var s Stock
 	s.Name = q.Name
 	s.Symbol = q.Symbol
 	s.ChangeinPercent = q.ChangeinPercent
-	s.Open, _ = strconv.ParseFloat(q.Open,64)
-	s.LastTradePrice, _ = strconv.ParseFloat(q.LastTradePriceOnly,64)
-	s.DaysHigh, _ = strconv.ParseFloat(q.DaysHigh,64)
-	s.DaysLow, _ = strconv.ParseFloat(q.DaysLow,64)
+	s.Open, _ = strconv.ParseFloat(q.Open, 64)
+	s.LastTradePrice, _ = strconv.ParseFloat(q.LastTradePriceOnly, 64)
+	s.DaysHigh, _ = strconv.ParseFloat(q.DaysHigh, 64)
+	s.DaysLow, _ = strconv.ParseFloat(q.DaysLow, 64)
 	s.Change = q.Change
 	return s
 }
@@ -128,11 +128,11 @@ func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, e
 		if err = json.Unmarshal(httpBody, &resp); err != nil {
 			return
 		}
-		for _,q := range resp.Query.Results.Quote {
-			stocks = append(stocks,q.toStock())
+		for _, q := range resp.Query.Results.Quote {
+			stocks = append(stocks, q.toStock())
 		}
 	}
-	for _,s := range stocks {
+	for _, s := range stocks {
 		s.LastUpdated = time.Now()
 		cachedStocks[s.Symbol] = s //update the cache
 	}

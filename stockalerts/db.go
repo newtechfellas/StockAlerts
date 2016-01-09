@@ -24,6 +24,12 @@ func GetEntity(ctx context.Context, stringId string, intId int64, kind string, e
 	return
 }
 
+func GetAllEntities(ctx context.Context, kind string, entities interface{}) (err error) {
+	q := datastore.NewQuery(kind)
+	_, err = q.GetAll(ctx, entities)
+	return
+}
+
 //Key based retrieval
 func DeleteEntity(ctx context.Context, stringId string, intId int64, kind string) (err error) {
 	if err = datastore.Delete(ctx, datastore.NewKey(ctx, kind, stringId, intId, nil)); err != nil {
@@ -32,13 +38,13 @@ func DeleteEntity(ctx context.Context, stringId string, intId int64, kind string
 	return
 }
 
-func GetPortfolioStocksFor(ctx context.Context, email string) ( alerts []PortfolioStock, err error) {
+func GetPortfolioStocksFor(ctx context.Context, email string) (alerts []PortfolioStock, err error) {
 	q := datastore.NewQuery("PortfolioStock").Filter("Email =", email)
-	if _, err = q.GetAll(ctx,&alerts) ; err != nil {
+	if _, err = q.GetAll(ctx, &alerts); err != nil {
 		log.Println("Could not fetch stock alerts for email ", email)
 		return
 	}
-	log.Println("Returning ",len(alerts), " number of alerts for email ", email)
+	log.Println("Returning ", len(alerts), " number of alerts for email ", email)
 	return
 }
 
