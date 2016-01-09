@@ -10,7 +10,10 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+"google.golang.org/appengine/mail"
+	"fmt"
 )
+
 
 func NewUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
@@ -36,6 +39,7 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 			ErrorResponse(w, errors.New("Error in creating user "), http.StatusInternalServerError)
 		} else {
 			//send email to confirm the verification code
+			sendVerificationCodeEmail(ctx, user)
 			JsonResponse(w, nil, nil, http.StatusCreated)
 		}
 		return
@@ -101,4 +105,16 @@ func GetValidUser(email string, ctx context.Context, w http.ResponseWriter, r *h
 		return
 	}
 	return
+}
+
+func sendVerificationCodeEmail(ctx context.Context, user User ) {
+	msg := &mail.Message{
+		Sender:  "NewTechFellas Stock Alerts Admin <newtechfellas@gmail.com>",
+		To:      []string{user.Email},
+		Subject: "Newtechfellas stock alerts verify user",
+		Body:    fmt.Sprintf("Your confirmation code is %s", user.VerificationCode),
+	}
+	if err := mail.Send(ctx, msg); err != nil {
+		log.Println(ctx, "Couldn't send email: %v", err)
+	}
 }
