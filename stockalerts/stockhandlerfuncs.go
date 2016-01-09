@@ -29,6 +29,15 @@ func registerAlert(w http.ResponseWriter, r *http.Request) {
 	if _, err := GetValidUser(stockAlert.Email, ctx, w, r); err != nil {
 		return
 	}
+	//Is stock symbol valid
+	if _, ok := cachedStocks[stockAlert.Symbol]; !ok {
+		if stocks , err := GetStocksUsingYql(ctx,[]string{ stockAlert.Symbol }); err != nil || len(stocks[0].Name) == 0 {
+			log.Println("Invalid alert. Stock symbol ", stockAlert.Symbol, " does not exist")
+			ErrorResponse(w, errors.New("Invalid alert. Stock symbol "+ stockAlert.Symbol+ " does not exist"), http.StatusBadRequest)
+			return
+		}
+	}
+
 	//Create stock alert entry
 	stockAlert.CreatedTime = time.Now()
 	if err := CreateOrUpdate(ctx, &stockAlert, "StockAlert", stockAlert.stringId(), 0); err != nil {

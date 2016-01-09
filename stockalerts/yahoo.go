@@ -31,7 +31,7 @@ func LoadCurrentPrices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	symbols := GetMapKeys(cachedStocks)
-	stocks, err := Yql(ctx, symbols)
+	stocks, err := GetStocksUsingYql(ctx, symbols)
 	if err != nil {
 		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
@@ -64,7 +64,7 @@ type YqlJsonSingleQuoteResponse struct {
 	}
 }
 
-func Yql(ctx context.Context, symbols []string) (stocks []Stock, err error) {
+func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, err error) {
 	client := urlfetch.Client(ctx)
 
 	quotedSymbols := MapStr(func(s string) string {
@@ -106,6 +106,10 @@ func Yql(ctx context.Context, symbols []string) (stocks []Stock, err error) {
 			return
 		}
 		stocks = resp.Query.Results.Quote
+	}
+	for _,s := range stocks {
+		s.LastUpdated = time.Now()
+		cachedStocks[s.Symbol] = s //update the cache
 	}
 	return
 }
