@@ -15,4 +15,5 @@ func init() {
 	r.HandleFunc("/confirmUser", confirmUser).Methods("POST")
 	r.HandleFunc("/registerAlert", registerAlert).Methods("POST")
 	r.HandleFunc("/loadStockPrices", LoadCurrentPrices).Methods("POST")
+	r.HandleFunc("/removeAlert", removeAlert).Methods("Delete")
 }

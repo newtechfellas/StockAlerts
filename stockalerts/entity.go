@@ -27,11 +27,11 @@ type StockAlert struct {
 type Stock struct {
 	Symbol             string
 	Name               string
-	Open               string
-	LastTradePriceOnly string
+	Open               float64
+	LastTradePrice float64
 	ChangeinPercent    string
-	DaysLow            string
-	DaysHigh           string
+	DaysLow            float64
+	DaysHigh           float64
 	Change             string
 	LastUpdated        time.Time
 }

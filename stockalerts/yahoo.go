@@ -12,12 +12,61 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"strconv"
 )
 
 const (
 	PublicApiUrl  = "http://query.yahooapis.com/v1/public/yql"
 	DatatablesUrl = "store://datatables.org/alltableswithkeys"
 )
+
+type YqlJsonMeta struct {
+	Count   int       `json:"count"`
+	Created time.Time `json:"created"`
+	Lang    string    `json:"lang"`
+}
+
+type Quote struct {
+	Symbol             string
+	Name               string
+	Open               string
+	LastTradePriceOnly string
+	ChangeinPercent    string
+	DaysLow            string
+	DaysHigh           string
+	Change             string
+}
+
+type YqlJsonQuoteResponse struct {
+	Query struct {
+			  YqlJsonMeta
+			  Results struct {
+						  Quote []Quote `json:"quote"`
+					  }
+		  }
+}
+
+type YqlJsonSingleQuoteResponse struct {
+	Query struct {
+			  YqlJsonMeta
+			  Results struct {
+						  Quote Quote `json:"quote"`
+					  }
+		  }
+}
+
+func (q Quote )toStock() Stock {
+	var s Stock
+	s.Name = q.Name
+	s.Symbol = q.Symbol
+	s.ChangeinPercent = q.ChangeinPercent
+	s.Open, _ = strconv.ParseFloat(q.Open,64)
+	s.LastTradePrice, _ = strconv.ParseFloat(q.LastTradePriceOnly,64)
+	s.DaysHigh, _ = strconv.ParseFloat(q.DaysHigh,64)
+	s.DaysLow, _ = strconv.ParseFloat(q.DaysLow,64)
+	s.Change = q.Change
+	return s
+}
 
 func LoadCurrentPrices(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
@@ -31,42 +80,18 @@ func LoadCurrentPrices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	symbols := GetMapKeys(cachedStocks)
-	stocks, err := GetStocksUsingYql(ctx, symbols)
+	_, err := GetStocksUsingYql(ctx, symbols)
 	if err != nil {
 		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
-	JsonResponse(w, stocks, nil, http.StatusOK)
+	log.Println("cachedStocks = ",Jsonify(cachedStocks))
+	JsonResponse(w, cachedStocks, nil, http.StatusOK)
 	return
-}
-
-type YqlJsonMeta struct {
-	Count   int       `json:"count"`
-	Created time.Time `json:"created"`
-	Lang    string    `json:"lang"`
-}
-
-type YqlJsonQuoteResponse struct {
-	Query struct {
-		YqlJsonMeta
-		Results struct {
-			Quote []Stock `json:"quote"`
-		}
-	}
-}
-
-type YqlJsonSingleQuoteResponse struct {
-	Query struct {
-		YqlJsonMeta
-		Results struct {
-			Quote Stock `json:"quote"`
-		}
-	}
 }
 
 func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, err error) {
 	client := urlfetch.Client(ctx)
-
 	quotedSymbols := MapStr(func(s string) string {
 		return `"` + s + `"`
 	}, symbols)
@@ -86,7 +111,6 @@ func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, e
 		return
 	}
 	defer resp.Body.Close()
-
 	httpBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error in Reading from response body while fetching quote from YQL", err)
@@ -99,13 +123,15 @@ func GetStocksUsingYql(ctx context.Context, symbols []string) (stocks []Stock, e
 			log.Println("Error in unmarshalling for single response ", err)
 			return
 		}
-		stocks = append(stocks, sresp.Query.Results.Quote)
+		stocks = append(stocks, sresp.Query.Results.Quote.toStock())
 	} else {
 		var resp YqlJsonQuoteResponse
 		if err = json.Unmarshal(httpBody, &resp); err != nil {
 			return
 		}
-		stocks = resp.Query.Results.Quote
+		for _,q := range resp.Query.Results.Quote {
+			stocks = append(stocks,q.toStock())
+		}
 	}
 	for _,s := range stocks {
 		s.LastUpdated = time.Now()

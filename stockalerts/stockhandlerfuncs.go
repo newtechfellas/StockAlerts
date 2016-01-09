@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+func removeAlert(w http.ResponseWriter, r *http.Request) {
+	stockAlert := StockAlert{Symbol:r.URL.Query().Get("Symbol"), Email:r.URL.Query().Get("Email")}
+	ctx := appengine.NewContext(r)
+	log.Println("Removing stock alert ", stockAlert)
+	if err := DeleteEntity(ctx,stockAlert.stringId(),0,stockAlert.kind()); err != nil {
+		ErrorResponse(w,err,http.StatusInternalServerError)
+		return
+	}
+	JsonResponse(w,nil,nil,http.StatusOK)
+}
 func registerAlert(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var stockAlert StockAlert
@@ -40,7 +50,7 @@ func registerAlert(w http.ResponseWriter, r *http.Request) {
 
 	//Create stock alert entry
 	stockAlert.CreatedTime = time.Now()
-	if err := CreateOrUpdate(ctx, &stockAlert, "StockAlert", stockAlert.stringId(), 0); err != nil {
+	if err := CreateOrUpdate(ctx, &stockAlert, stockAlert.kind(), stockAlert.stringId(), 0); err != nil {
 		log.Println("Could not create stock alerts for ", stockAlert.Email, "Error is ", err)
 		ErrorResponse(w, errors.New("Could not create stock alerts for "+stockAlert.Email), http.StatusInternalServerError)
 		return

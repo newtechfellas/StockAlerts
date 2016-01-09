@@ -24,6 +24,14 @@ func GetEntity(ctx context.Context, stringId string, intId int64, kind string, e
 	return
 }
 
+//Key based retrieval
+func DeleteEntity(ctx context.Context, stringId string, intId int64, kind string) (err error) {
+	if err = datastore.Delete(ctx, datastore.NewKey(ctx, kind, stringId, intId, nil)); err != nil {
+		log.Println("Did not find the entity with intId ", intId, "stringId ", stringId, " for kind = ", kind)
+	}
+	return
+}
+
 func LoadAllStockSymbols(ctx context.Context) []Stock {
 	var stocks []Stock
 	q := datastore.NewQuery("Stock")
