@@ -6,23 +6,38 @@ import (
 	"google.golang.org/appengine/mail"
 	"log"
 	"net/http"
+	"time"
 )
 
 // This handler is invoked by scheduler every 1 min 30 seconds to compare against latest stock prices
 // It sends email alerts if the configured portfolio stock is eligible for alert
 // This handler does not load the latest stock prices from YQL. Instead it relies on the already loaded cache
 
-
 // For any reason if scheduled run is not completed with-in 90 seconds, this variable prevents another run
 var isUpdateInProgress bool = false
 
+func isWeekDay() bool {
+	today := time.Now().Weekday()
+	switch today {
+	case time.Monday:
+	case time.Tuesday:
+	case time.Wednesday:
+	case time.Thursday:
+	case time.Friday:
+		return true
+	}
+	return false
+}
 func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
-	defer func() { isUpdateInProgress = false }()
-	isUpdateInProgress = true
 	if len(cachedStocks) == 0 {
 		log.Println("Cached Stocks not available. Can not continue to update all portfolios")
 		return
 	}
+	if !isWeekDay() {
+		return
+	}
+	defer func() { isUpdateInProgress = false }()
+	isUpdateInProgress = true
 	ctx := appengine.NewContext(r)
 	var portfolioStocks []PortfolioStock
 	if err := GetAllEntities(ctx, "PortfolioStock", &portfolioStocks); err != nil {

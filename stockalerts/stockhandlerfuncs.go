@@ -10,6 +10,9 @@ import (
 )
 
 func RemoveAlert(w http.ResponseWriter, r *http.Request) {
+	if isTrustedReq(w, r) != nil {
+		return
+	}
 	portfolioStock := PortfolioStock{Symbol: r.URL.Query().Get("symbol"), Email: r.URL.Query().Get("email")}
 	ctx := appengine.NewContext(r)
 	log.Println("Removing stock alert ", portfolioStock)
@@ -51,6 +54,9 @@ func GetPortfolio(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterAlert(w http.ResponseWriter, r *http.Request) {
+	if isTrustedReq(w, r) != nil {
+		return
+	}
 	decoder := json.NewDecoder(r.Body)
 	var portfolioStock PortfolioStock
 	if err := decoder.Decode(&portfolioStock); err != nil {
