@@ -32,6 +32,16 @@ func DeleteEntity(ctx context.Context, stringId string, intId int64, kind string
 	return
 }
 
+func GetPortfolioStocksFor(ctx context.Context, email string) ( alerts []PortfolioStock, err error) {
+	q := datastore.NewQuery("PortfolioStock").Filter("Email =", email)
+	if _, err = q.GetAll(ctx,&alerts) ; err != nil {
+		log.Println("Could not fetch stock alerts for email ", email)
+		return
+	}
+	log.Println("Returning ",len(alerts), " number of alerts for email ", email)
+	return
+}
+
 func LoadAllStockSymbols(ctx context.Context) []Stock {
 	var stocks []Stock
 	q := datastore.NewQuery("Stock")

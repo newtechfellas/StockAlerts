@@ -85,7 +85,6 @@ func LoadCurrentPrices(w http.ResponseWriter, r *http.Request) {
 		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
-	log.Println("cachedStocks = ",Jsonify(cachedStocks))
 	JsonResponse(w, cachedStocks, nil, http.StatusOK)
 	return
 }

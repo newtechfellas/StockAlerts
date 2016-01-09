@@ -14,12 +14,14 @@ type User struct {
 	VerifiedTime     time.Time
 }
 
-type StockAlert struct {
+type PortfolioStock struct {
 	Email         string `valid:"Required;"`
 	Symbol        string `valid:"Required;"` //stock symbol such as AAPL. Works as unique identifier. Using this create the key
 	PriceLow      float64
 	PriceHigh     float64
-	AlertSentTime time.Time
+	PriceBought   float64
+	LastTradePrice   float64
+	AlertSentTime time.Time `json:omitempty`
 	CreatedTime   time.Time
 }
 
@@ -36,11 +38,11 @@ type Stock struct {
 	LastUpdated        time.Time
 }
 
-func (alert StockAlert) stringId() string {
+func (alert PortfolioStock) stringId() string {
 	return alert.Email + ":" + alert.Symbol
 }
-func (alert StockAlert) kind() string {
-	return "StockAlert"
+func (alert PortfolioStock) kind() string {
+	return "PortfolioStock"
 }
 func (s Stock) stringId() string {
 	return s.Symbol
@@ -49,6 +51,6 @@ func (s Stock) kind() string {
 	return "Stock"
 }
 
-func (f StockAlert) String() string { return Jsonify(f) }
+func (f PortfolioStock) String() string { return Jsonify(f) }
 func (u User) String() string       { return Jsonify(u) }
 func (s Stock) String() string      { return Jsonify(s) }

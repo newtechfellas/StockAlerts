@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func newUser(w http.ResponseWriter, r *http.Request) {
+func NewUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var user User
 	if err := decoder.Decode(&user); err != nil {
@@ -48,7 +48,7 @@ func newUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func confirmUser(w http.ResponseWriter, r *http.Request) {
+func ConfirmUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var user User
 	if err := decoder.Decode(&user); err != nil {
