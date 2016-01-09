@@ -1,9 +1,9 @@
 package stockalerts
 
 import (
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
-	"github.com/gorilla/handlers"
 )
 
 func init() {
@@ -14,4 +14,5 @@ func init() {
 	r.HandleFunc("/newUser", newUser).Methods("POST")
 	r.HandleFunc("/confirmUser", confirmUser).Methods("POST")
 	r.HandleFunc("/registerAlert", registerAlert).Methods("POST")
+	r.HandleFunc("/loadStockPrices", LoadCurrentPrices).Methods("POST")
 }

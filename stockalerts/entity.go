@@ -25,9 +25,15 @@ type StockAlert struct {
 
 //stock symbols table
 type Stock struct {
-	Symbol string
-	Price float64
-	LastUpdated time.Time
+	Symbol             string
+	Name               string
+	Open               string
+	LastTradePriceOnly string
+	ChangeinPercent    string
+	DaysLow            string
+	DaysHigh           string
+	Change             string
+	LastUpdated        time.Time
 }
 
 func (alert StockAlert) stringId() string {
@@ -45,4 +51,4 @@ func (s Stock) kind() string {
 
 func (f StockAlert) String() string { return Jsonify(f) }
 func (u User) String() string       { return Jsonify(u) }
-func (s Stock) String() string       { return Jsonify(s) }
+func (s Stock) String() string      { return Jsonify(s) }

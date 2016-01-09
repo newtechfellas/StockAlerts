@@ -30,5 +30,8 @@ func LoadAllStockSymbols(ctx context.Context) []Stock {
 	if _, err := q.GetAll(ctx, &stocks); err != nil {
 		log.Println("Error in fetching all stocks ", err)
 	}
+	for _, s := range stocks {
+		cachedStocks[s.Symbol] = s
+	}
 	return stocks
 }

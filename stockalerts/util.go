@@ -79,3 +79,23 @@ func Jsonify(obj interface{}) string {
 	}
 	return string(b)
 }
+
+//https://github.com/aktau/gofinance/blob/master/util/func.go
+func MapStr(mapping func(string) string, xs []string) []string {
+	mxs := make([]string, 0, len(xs))
+	for _, s := range xs {
+		mxs = append(mxs, mapping(s))
+	}
+	return mxs
+}
+
+//http://stackoverflow.com/questions/21362950/go-golang-getting-an-array-of-keys-from-a-map
+func GetMapKeys(m map[string]Stock) []string {
+	keys := make([]string, len(m))
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+	return keys
+}
