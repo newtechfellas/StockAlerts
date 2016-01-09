@@ -29,13 +29,21 @@ func registerAlert(w http.ResponseWriter, r *http.Request) {
 	if _, err := GetValidUser(stockAlert.Email, ctx, w, r); err != nil {
 		return
 	}
+	//Create stock alert entry
 	stockAlert.CreatedTime = time.Now()
-	if err := CreateOrUpdate(ctx, &stockAlert, "StockAlert", stockAlert.getKey(), 0); err != nil {
+	if err := CreateOrUpdate(ctx, &stockAlert, "StockAlert", stockAlert.stringId(), 0); err != nil {
 		log.Println("Could not create stock alerts for ", stockAlert.Email, "Error is ", err)
 		ErrorResponse(w, errors.New("Could not create stock alerts for "+stockAlert.Email), http.StatusInternalServerError)
 		return
 	}
-	cachedStockSymbols[stockAlert.Symbol] = stockAlert.Symbol //key and value are same. Weird!!!. But a map is provides faster lookups
+	//If this is for a new stock, update stock table for this new symbol
+	s := Stock{Symbol: stockAlert.Symbol}
+	if err := CreateOrUpdate(ctx, &s, s.kind(), s.stringId(), 0); err != nil {
+		log.Println("Could not create symbol ", stockAlert.Email, "Error is ", err)
+		ErrorResponse(w, errors.New("Could not create stock symbol "+stockAlert.Email), http.StatusInternalServerError)
+		return
+	}
+	cachedStocks[stockAlert.Symbol] = s //key and value are same. Weird!!!. But a map provides faster lookups
 	//finally if all the above was successful return 202 Created status
 	JsonResponse(w, nil, nil, http.StatusCreated)
 	return

@@ -1,3 +1,3 @@
 package stockalerts
 
-var cachedStockSymbols map[string]string = make(map[string]string, 500) //all known symbols to be cached. Map is used over slice to make faster lookups
+var cachedStocks map[string]Stock = make(map[string]Stock, 500) //all known stocks to be cached. Map is used over slice to make faster lookups

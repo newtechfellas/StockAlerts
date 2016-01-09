@@ -23,3 +23,12 @@ func GetEntity(ctx context.Context, stringId string, intId int64, kind string, e
 	}
 	return
 }
+
+func LoadAllStockSymbols(ctx context.Context) []Stock {
+	var stocks []Stock
+	q := datastore.NewQuery("Stock")
+	if _, err := q.GetAll(ctx, &stocks); err != nil {
+		log.Println("Error in fetching all stocks ", err)
+	}
+	return stocks
+}
