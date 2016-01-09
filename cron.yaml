@@ -1,0 +1,8 @@
+cron:
+ - description : refresh cache with latest stock prices. Timezone is default UTC. Starts are pre-market hours of 06:00 AM ET and ends at post market hours 8:00PM ET
+ url: /loadStockPrices
+ schedule: every 1 min from 11:00 to 01:00
+
+ - description : Update all portfolios for the users and send eligible alerts
+ url: /updateAllPortfoliosAndAlert
+ schedule: every 1 min from 11:01 to 01:00

@@ -11,6 +11,8 @@ import (
 // This handler is invoked by scheduler every 1 min 30 seconds to compare against latest stock prices
 // It sends email alerts if the configured portfolio stock is eligible for alert
 // This handler does not load the latest stock prices from YQL. Instead it relies on the already loaded cache
+
+
 // For any reason if scheduled run is not completed with-in 90 seconds, this variable prevents another run
 var isUpdateInProgress bool = false
 
