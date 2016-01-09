@@ -44,6 +44,23 @@ func GetPortfolioStocksFor(ctx context.Context, email string) (alerts []Portfoli
 		log.Println("Could not fetch stock alerts for email ", email)
 		return
 	}
+	//Update the portfolio alerts
+	if len(cachedStocks) == 0 {
+		log.Println("Stocks current prices are not available yet. Perhaps the scheduler has not begun or failed")
+		return
+	}
+	log.Println("updating last traded price using cachedStocks")
+	for symbol, stock := range cachedStocks {
+		log.Println("iterating for ", symbol)
+		for index, portfolioStock := range alerts {
+			log.Println("iterating portfolio for ", portfolioStock.Symbol)
+			if portfolioStock.Symbol == symbol {
+				log.Println("Assigning LastTradePrice  using ", stock.LastTradePrice)
+				portfolioStock.LastTradePrice = stock.LastTradePrice
+			}
+			alerts[index] = portfolioStock
+		}
+	}
 	log.Println("Returning ", len(alerts), " number of alerts for email ", email)
 	return
 }

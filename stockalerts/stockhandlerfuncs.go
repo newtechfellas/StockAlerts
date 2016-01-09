@@ -32,23 +32,6 @@ func GetPortfolio(w http.ResponseWriter, r *http.Request) {
 		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
-	//Update the portfolio alerts
-	if len(cachedStocks) == 0 {
-		log.Println("Stocks current prices are not available yet. Perhaps the scheduler has not begun or failed")
-		return
-	}
-	log.Println("updating lasttraded price using cachedStocks")
-	for symbol, stock := range cachedStocks {
-		log.Println("iterating for ", symbol)
-		for index, portfolioStock := range portfolioStocks {
-			log.Println("iterating portfolio for ", portfolioStock.Symbol)
-			if portfolioStock.Symbol == symbol {
-				log.Println("Assigning LastTradePrice  using ", stock.LastTradePrice)
-				portfolioStock.LastTradePrice = stock.LastTradePrice
-			}
-			portfolioStocks[index] = portfolioStock
-		}
-	}
 	JsonResponse(w, portfolioStocks, nil, http.StatusOK)
 	return
 }
