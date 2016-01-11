@@ -16,28 +16,28 @@ import (
 // For any reason if scheduled run is not completed with-in 90 seconds, this variable prevents another run
 var isUpdateInProgress bool = false
 
+
 func isWeekDay() bool {
 	today := time.Now().Weekday()
-	switch today {
-	case time.Monday:
-	case time.Tuesday:
-	case time.Wednesday:
-	case time.Thursday:
-	case time.Friday:
+	if today == time.Monday || today == time.Tuesday || today == time.Wednesday ||	 today == time.Thursday ||	today == time.Friday {
 		return true
 	}
 	return false
 }
+
 func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
 	if len(cachedStocks) == 0 {
+		log.Debugf(ctx,"UpdateAllPortfoliosAndAlert: cachedStocks are empty")
 		return
 	}
 	if !isWeekDay() {
+		log.Debugf(ctx,"UpdateAllPortfoliosAndAlert: is not a weekday.")
 		return
 	}
 	defer func() { isUpdateInProgress = false }()
 	isUpdateInProgress = true
-	ctx := appengine.NewContext(r)
+
 	var portfolioStocks []PortfolioStock
 	if err := GetAllEntities(ctx, "PortfolioStock", &portfolioStocks); err != nil {
 		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: Could not fetch all portfolios ", err)
@@ -47,7 +47,9 @@ func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: fetched portfoilios len is 0")
 		return
 	}
+//	log.Debugf(ctx,"Before filteting eligible stocks ", Jsonify(portfolioStocks))
 	eligibleStocks := FilterForAlertEligiblePortfolioStocks(portfolioStocks)
+//	log.Debugf(ctx,"After filteting eligible stocks ", Jsonify(portfolioStocks))
 	SendAlerts(ctx, eligibleStocks)
 }
 
