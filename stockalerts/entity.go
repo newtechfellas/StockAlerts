@@ -45,8 +45,8 @@ func (alert PortfolioStock) stringId() string {
 func (alert PortfolioStock) isEligibleForAlert(s Stock) bool {
 	//Alert is sent only once an hour
 	//TODO: Make this user driven instead of hardcoded 1 hour limit
-	return (alert.PriceHigh != 0 && s.LastTradePrice > alert.PriceHigh) ||
-		(alert.PriceLow != 0 && s.LastTradePrice < alert.PriceLow) &&
+	return ((alert.PriceHigh != 0 && s.LastTradePrice > alert.PriceHigh) ||
+		(alert.PriceLow != 0 && s.LastTradePrice < alert.PriceLow)) &&
 			(alert.AlertSentTime.IsZero() || time.Now().Sub(alert.AlertSentTime).Hours() > 1)
 
 }

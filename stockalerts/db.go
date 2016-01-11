@@ -51,11 +51,8 @@ func GetPortfolioStocksFor(ctx context.Context, email string) (alerts []Portfoli
 	}
 	log.Debugf(ctx, "updating last traded price using cachedStocks")
 	for symbol, stock := range cachedStocks {
-		log.Debugf(ctx, "iterating for ", symbol)
 		for index, portfolioStock := range alerts {
-			log.Debugf(ctx, "iterating portfolio for ", portfolioStock.Symbol)
 			if portfolioStock.Symbol == symbol {
-				log.Debugf(ctx, "Assigning LastTradePrice  using ", stock.LastTradePrice)
 				portfolioStock.LastTradePrice = stock.LastTradePrice
 			}
 			alerts[index] = portfolioStock
