@@ -48,12 +48,12 @@ func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 //	log.Debugf(ctx,"Before filteting eligible stocks ", Jsonify(portfolioStocks))
-	eligibleStocks := FilterForAlertEligiblePortfolioStocks(portfolioStocks)
+	eligibleStocks := FilterForAlertEligiblePortfolioStocks(ctx, portfolioStocks)
 //	log.Debugf(ctx,"After filteting eligible stocks ", Jsonify(portfolioStocks))
 	SendAlerts(ctx, eligibleStocks)
 }
 
-func FilterForAlertEligiblePortfolioStocks(portfolioStocks []PortfolioStock) []PortfolioStock {
+func FilterForAlertEligiblePortfolioStocks(ctx context.Context, portfolioStocks []PortfolioStock) []PortfolioStock {
 	var eligibleStocks []PortfolioStock
 	for _, portfolioStock := range portfolioStocks {
 		stock := cachedStocks[portfolioStock.Symbol]
@@ -89,4 +89,12 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 			log.Debugf(ctx, "Couldn't send email: %v", err)
 		}
 	}
+
+	for _, portfolioStock := range stocksForAlert {
+		portfolioStock.AlertSentTime = time.Now()
+		//Save stocksForAlert to update last alert sent time
+		CreateOrUpdate(ctx,&portfolioStock, portfolioStock.kind(), portfolioStock.stringId(),0)
+	}
+
+
 }

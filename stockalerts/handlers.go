@@ -4,7 +4,7 @@ import (
 //	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
-"html/template"
+	"html/template"
 	"google.golang.org/appengine"
 )
 
@@ -27,11 +27,14 @@ func init() {
 	homeTemplate = template.Must(template.ParseFiles("templates/home.html"))
 }
 
-
+type HomePageData struct {
+	PortfolioAlert []PortfolioStock
+	CachedStocks map[string]Stock
+}
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	alerts, _ := GetPortfolioStocksFor(ctx,"suman.jakkula@gmail.com")
-	err := homeTemplate.Execute(w,alerts)
+	err := homeTemplate.Execute(w,HomePageData{ PortfolioAlert: alerts, CachedStocks : cachedStocks})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
