@@ -23,6 +23,7 @@ type PortfolioStock struct {
 	LastTradePrice float64
 	AlertSentTime  time.Time `json:omitempty`
 	CreatedTime    time.Time
+	QuantityBought    	int
 }
 
 //stock symbols table

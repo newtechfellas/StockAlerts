@@ -75,6 +75,8 @@
             <tr>
                 <th>Symbol</th>
                 <th>BoughtPrice</th>
+                <th>BoughtQuantity</th>
+                <th>NetLoss/Profit</th>
                 <th>Current</th>
                 <th>AlertRange</th>
                 <th>Change</th>
@@ -82,9 +84,11 @@
             </thead>
             <tbody>
             {{ range $index, $alert := .PortfolioAlert}}
-	    {{ if ( and ( gt $alert.PriceBought 0.0 ) ( gt $alert.PriceBought $alert.LastTradePrice )) }} <tr class="danger">  {{ else  if ( and ( gt $alert.PriceBought 0.0 ) ( lt $alert.PriceBought $alert.LastTradePrice )) }} <tr class="success"> {{ else if ( eq $alert.PriceBought 0.0 ) }} <tr class="active">{{ end }}
+            {{ if ( and ( gt $alert.PriceBought 0.0 ) ( gt $alert.PriceBought $alert.LastTradePrice )) }} <tr class="danger">  {{ else  if ( and ( gt $alert.PriceBought 0.0 ) ( lt $alert.PriceBought $alert.LastTradePrice )) }} <tr class="success"> {{ else if ( eq $alert.PriceBought 0.0 ) }} <tr class="active">{{ end }}
                 <td>{{$alert.Symbol}}</td>
                 <td>{{$alert.PriceBought}}</td>
+                <td>{{$alert.QuantityBought}}</td>
+                <td>{{ netProfitLoss .QuantityBought .PriceBought .LastTradePrice}}</td>
                 {{ with $stock := index $.CachedStocks .Symbol }}
                 <td>{{$alert.LastTradePrice}} - ( {{ $stock.DaysLow }} - {{ $stock.DaysHigh }}) </td>
                 <td>{{$alert.PriceLow}} - {{$alert.PriceHigh}}</td>
@@ -127,6 +131,13 @@
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>PriceBought</label>
                                 <input class="form-control" type="number" step="0.01" placeholder="Price Bought" id="priceBought">
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group controls">
+                                <label>QuantityBought</label>
+                                <input class="form-control" type="number" placeholder="Quantity Bought" id="quantityBought">
                                 <p class="help-block text-danger"></p>
                             </div>
                         </div>
@@ -483,7 +494,8 @@
             "email" : $("#userEmail").val(),
             "priceLow" : parseFloat($("#priceLow").val() || 0),
             "priceHigh" : parseFloat($("#priceHigh").val() || 0),
-            "priceBought" : parseFloat($("#priceBought").val() || 0)
+            "priceBought" : parseFloat($("#priceBought").val() || 0),
+            "quantityBought" : parseInt($("#quantityBought").val() || 0)
         }
         console.log("AddToPortfolio submitted with "+JSON.stringify(payload));
         $.ajax({

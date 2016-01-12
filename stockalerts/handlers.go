@@ -9,6 +9,13 @@ import (
 )
 
 var homeTemplate *template.Template
+//ridiculous Go templates. Even for simple operations such as arithmatic, you need to define a function and map it
+var funcMap = template.FuncMap{
+	"netProfitLoss": netProfitLoss,
+}
+func netProfitLoss(boughtQuantity int, boughtPrice, lastTradedPrice float64) float64{
+	return (float64(boughtQuantity)*lastTradedPrice) - (float64(boughtQuantity)*boughtPrice)
+}
 
 func init() {
 	r := mux.NewRouter()
@@ -24,7 +31,7 @@ func init() {
 	r.HandleFunc("/getPortfolio", GetPortfolio).Methods("GET")
 	r.HandleFunc("/updateAllPortfoliosAndAlert", UpdateAllPortfoliosAndAlert).Methods("GET")
 
-	homeTemplate = template.Must(template.ParseFiles("templates/home.html"))
+	homeTemplate = template.Must(template.New("home.html").Funcs(funcMap).ParseFiles("templates/home.html"))
 }
 
 type HomePageData struct {
