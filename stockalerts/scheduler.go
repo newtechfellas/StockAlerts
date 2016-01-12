@@ -7,6 +7,8 @@ import (
 	"google.golang.org/appengine/log"
 	"net/http"
 	"time"
+	"fmt"
+	"strings"
 )
 
 // This handler is invoked by scheduler every 1 min 30 seconds to compare against latest stock prices
@@ -83,7 +85,7 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 			Sender:  "NewTechFellas Stock Alerts <newtechfellas@gmail.com>",
 			To:      []string{email},
 			Subject: "Newtechfellas stock alerts for your stocks",
-			Body:    Jsonify(alerts),
+			Body:    getStocksAlertMailBody(alerts),
 		}
 		if err := mail.Send(ctx, msg); err != nil {
 			log.Debugf(ctx, "Couldn't send email: %v", err)
@@ -95,6 +97,11 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 		//Save stocksForAlert to update last alert sent time
 		CreateOrUpdate(ctx,&portfolioStock, portfolioStock.kind(), portfolioStock.stringId(),0)
 	}
-
-
+}
+func getStocksAlertMailBody(portfolioStocks []PortfolioStock) string {
+	var msgs []string
+	for _, p := range portfolioStocks {
+		msgs = append(msgs,fmt.Sprintf("Symbol: %v , Todays range %v - %v , Last traded at - %v ", p.Symbol,p.PriceLow, p.PriceHigh, p.LastTradePrice))
+	}
+	return strings.Join(msgs,"\n")
 }
