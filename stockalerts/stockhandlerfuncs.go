@@ -65,6 +65,15 @@ func RegisterAlert(w http.ResponseWriter, r *http.Request) {
 			log.Debugf(ctx, "Invalid alert. Stock symbol ", portfolioStock.Symbol, " does not exist")
 			ErrorResponse(w, errors.New("Invalid alert. Stock symbol "+portfolioStock.Symbol+" does not exist"), http.StatusBadRequest)
 			return
+		} else {
+			//New stock. Update cache and DB
+			s := stocks[0]
+			cachedStocks[s.Symbol] = s
+			if err := CreateOrUpdate(ctx, &s, s.kind(), s.stringId(), 0); err != nil {
+				log.Debugf(ctx, "Could not create symbol ", portfolioStock.Email, "Error is ", err)
+				ErrorResponse(w, errors.New("Could not create stock symbol "+portfolioStock.Email), http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 
@@ -75,14 +84,6 @@ func RegisterAlert(w http.ResponseWriter, r *http.Request) {
 		ErrorResponse(w, errors.New("Could not create stock alerts for "+portfolioStock.Email), http.StatusInternalServerError)
 		return
 	}
-	//If this is for a new stock, update stock table for this new symbol
-	s := Stock{Symbol: portfolioStock.Symbol}
-	if err := CreateOrUpdate(ctx, &s, s.kind(), s.stringId(), 0); err != nil {
-		log.Debugf(ctx, "Could not create symbol ", portfolioStock.Email, "Error is ", err)
-		ErrorResponse(w, errors.New("Could not create stock symbol "+portfolioStock.Email), http.StatusInternalServerError)
-		return
-	}
-	cachedStocks[portfolioStock.Symbol] = s //key and value are same. Weird!!!. But a map provides faster lookups
 	//finally if all the above was successful return 202 Created status
 	JsonResponse(w, nil, nil, http.StatusCreated)
 	return
