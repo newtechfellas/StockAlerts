@@ -73,7 +73,7 @@ func ErrorResponse(w http.ResponseWriter, err error, statusCode int) {
 }
 
 func Jsonify(obj interface{}) string {
-	b, err := json.MarshalIndent(obj," ", "    ")
+	b, err := json.MarshalIndent(obj, " ", "    ")
 	if err != nil {
 		return ""
 	}

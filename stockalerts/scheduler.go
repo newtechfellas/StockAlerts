@@ -1,14 +1,14 @@
 package stockalerts
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/mail"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/mail"
 	"net/http"
-	"time"
-	"fmt"
 	"strings"
+	"time"
 )
 
 // This handler is invoked by scheduler every 1 min 30 seconds to compare against latest stock prices
@@ -18,10 +18,10 @@ import (
 // For any reason if scheduled run is not completed with-in 90 seconds, this variable prevents another run
 var isUpdateInProgress bool = false
 
-
 func isWeekDay() bool {
 	today := time.Now().Weekday()
-	if today == time.Monday || today == time.Tuesday || today == time.Wednesday ||	 today == time.Thursday ||	today == time.Friday {
+	switch today {
+	case time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday:
 		return true
 	}
 	return false
@@ -30,11 +30,11 @@ func isWeekDay() bool {
 func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	if len(cachedStocks) == 0 {
-		log.Debugf(ctx,"UpdateAllPortfoliosAndAlert: cachedStocks are empty")
+		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: cachedStocks are empty")
 		return
 	}
 	if !isWeekDay() {
-		log.Debugf(ctx,"UpdateAllPortfoliosAndAlert: is not a weekday.")
+		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: is not a weekday.")
 		return
 	}
 	defer func() { isUpdateInProgress = false }()
@@ -49,9 +49,9 @@ func UpdateAllPortfoliosAndAlert(w http.ResponseWriter, r *http.Request) {
 		log.Debugf(ctx, "UpdateAllPortfoliosAndAlert: fetched portfoilios len is 0")
 		return
 	}
-//	log.Debugf(ctx,"Before filteting eligible stocks ", Jsonify(portfolioStocks))
+	//	log.Debugf(ctx,"Before filteting eligible stocks ", Jsonify(portfolioStocks))
 	eligibleStocks := FilterForAlertEligiblePortfolioStocks(ctx, portfolioStocks)
-//	log.Debugf(ctx,"After filteting eligible stocks ", Jsonify(portfolioStocks))
+	//	log.Debugf(ctx,"After filteting eligible stocks ", Jsonify(portfolioStocks))
 	SendAlerts(ctx, eligibleStocks)
 }
 
@@ -95,13 +95,13 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 	for _, portfolioStock := range stocksForAlert {
 		portfolioStock.AlertSentTime = time.Now()
 		//Save stocksForAlert to update last alert sent time
-		CreateOrUpdate(ctx,&portfolioStock, portfolioStock.kind(), portfolioStock.stringId(),0)
+		CreateOrUpdate(ctx, &portfolioStock, portfolioStock.kind(), portfolioStock.stringId(), 0)
 	}
 }
 func getStocksAlertMailBody(portfolioStocks []PortfolioStock) string {
 	var msgs []string
 	for _, p := range portfolioStocks {
-		msgs = append(msgs,fmt.Sprintf("Symbol: %v , Todays range %v - %v , Last traded at - %v ", p.Symbol,p.PriceLow, p.PriceHigh, p.LastTradePrice))
+		msgs = append(msgs, fmt.Sprintf("Symbol: %v , Todays range %v - %v , Last traded at - %v ", p.Symbol, p.PriceLow, p.PriceHigh, p.LastTradePrice))
 	}
-	return strings.Join(msgs,"\n")
+	return strings.Join(msgs, "\n")
 }

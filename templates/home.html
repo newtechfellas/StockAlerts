@@ -74,9 +74,9 @@
             <thead>
             <tr>
                 <th>Symbol</th>
-                <th>BoughtPrice</th>
-                <th>BoughtQuantity</th>
-                <th>NetLoss/Profit</th>
+                <th>Bought</th>
+                <th>Count</th>
+                <th>Gain</th>
                 <th>Current</th>
                 <th>AlertRange</th>
                 <th>Change</th>
@@ -90,8 +90,8 @@
                 <td>{{$alert.QuantityBought}}</td>
                 <td>{{ netProfitLoss .QuantityBought .PriceBought .LastTradePrice}}</td>
                 {{ with $stock := index $.CachedStocks .Symbol }}
-                <td>{{$alert.LastTradePrice}} - ( {{ $stock.DaysLow }} - {{ $stock.DaysHigh }}) </td>
-                <td>{{$alert.PriceLow}} - {{$alert.PriceHigh}}</td>
+                <td>{{$alert.LastTradePrice}}<br>({{ $stock.DaysLow }} - {{ $stock.DaysHigh }})</br> </td>
+                <td>{{$alert.PriceLow}}-{{$alert.PriceHigh}}</td>
                 <td>{{ $stock.Change }}</td>
                 {{ end }}
             </tr>
