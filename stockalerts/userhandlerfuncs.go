@@ -9,7 +9,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/mail"
-	"math/rand"
 	"net/http"
 	"time"
 )
@@ -32,7 +31,7 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	if err := GetEntity(ctx, user.Email, 0, "User", &user); err == datastore.ErrNoSuchEntity {
 		log.Debugf(ctx, "Registering user", Jsonify(user))
 		user.CreatedTime = time.Now()
-		user.VerificationCode = rand.Int()
+		user.VerificationCode = Random4DigitNumber()
 		if err = CreateOrUpdate(ctx, &user, "User", user.Email, 0); err != nil {
 			log.Debugf(ctx, "Error in creating user ", Jsonify(user), " error is ", err)
 			ErrorResponse(w, errors.New("Error in creating user "), http.StatusInternalServerError)
@@ -82,7 +81,9 @@ func ConfirmUser(w http.ResponseWriter, r *http.Request) {
 			ErrorResponse(w, errors.New("Error in confirming user "), http.StatusInternalServerError)
 		} else {
 			//send email to confirm the verification code
-			JsonResponse(w, nil, nil, http.StatusOK)
+			headers := make(map[string]string)
+			headers["vc"] = string(dbUser.VerificationCode)
+			JsonResponse(w, nil, headers, http.StatusOK)
 		}
 		return
 	} else {

@@ -84,7 +84,7 @@ func SendAlerts(ctx context.Context, stocksForAlert []PortfolioStock) {
 		msg := &mail.Message{
 			Sender:  "NewTechFellas Stock Alerts <newtechfellas@gmail.com>",
 			To:      []string{email},
-			Subject: "Newtechfellas stock alerts for your stocks",
+			Subject: "Newtechfellas stock alerts for your stocks - "+DateString(),
 			Body:    getStocksAlertMailBody(alerts),
 		}
 		if err := mail.Send(ctx, msg); err != nil {

@@ -8,6 +8,8 @@ import (
 	"github.com/astaxie/beego/validation"
 	"log"
 	"net/http"
+	"math/rand"
+	"time"
 )
 
 func DecodeAndValidate(w http.ResponseWriter, r *http.Request, obj interface{}) (err error) {
@@ -98,4 +100,18 @@ func GetMapKeys(m map[string]Stock) []string {
 		i++
 	}
 	return keys
+}
+
+func Random4DigitNumber() int {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	v := r.Intn(9999)
+	if v == 0 {
+		v = Random4DigitNumber()
+	}
+	return v
+}
+
+func DateString() string {
+	y,m,d  := time.Now().Date()
+	return fmt.Sprintf("%v %v %v",y,m,d)
 }
